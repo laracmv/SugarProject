@@ -684,6 +684,7 @@ button,
       <span class="bc-step">Departure</span><span class="bc-sep">›</span>
       <span class="bc-step">Confirm</span>
     </div>
+    <button class="back-btn" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);">← Change Version</button>
   </div>
   <div class="step-wrap">
     <!-- Attendee view -->
@@ -1153,6 +1154,23 @@ function startSurvey(version){
   g('page1').classList.add('visible');
   buildEventGrid();
   setRole(currentRole);
+  // Add event listener to back button
+  const backBtn = document.querySelector('#page1 .site-header .back-btn');
+  if(backBtn) backBtn.onclick = goBackToVersionSelection;
+}
+
+function goBackToVersionSelection(){
+  // Reset selected event and options
+  selEv = null;
+  selOpt = null;
+  qty = 1;
+  // Transition page1 → page0
+  g('page1').classList.remove('visible');
+  g('page1').classList.add('hidden-right');
+  g('page0').classList.remove('hidden-left');
+  g('page0').classList.add('visible');
+  g('page0').scrollTop = 0;
+  curPage = 0;
 }
 
 /* ════════════════════════════════════════════════════════════════
