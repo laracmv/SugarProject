@@ -582,7 +582,7 @@ canvas{width:100%!important;display:block;}
 
 /* ── SIM CHAT DARK BG ── */
 [data-theme="dark"] #sim-chat{background:#0a0c10;}
-[data-theme="dark"] #sim-modal .modal-box{background:#0e1015;}
+[data-theme="dark"] #simModal .modal-box{background:#0e1015;}
 
 /* ── GLOBAL MICRO-INTERACTIONS ── */
 button,
@@ -1455,6 +1455,10 @@ function goToPage(n,dir){
   if(n===2&&!selEv) return;
   if(n===3&&!selEv) return;
   if(n===4&&!selOpt) return;
+  // Close any open modals when navigating
+  g('simModal').classList.add('hidden');
+  g('addEventModal').classList.add('hidden');
+  closeOptDrawer();
   const pages=[null,g('page1'),g('page2'),g('page3'),g('page4'),g('page5')];
   const d=dir||(n>curPage?'right':'left');
   const cur=pages[curPage],nxt=pages[n];
