@@ -1138,9 +1138,99 @@ button,
 ════════════════════════════════════════════════════════════════ */
 let surveyVersion = localStorage.getItem('cw-survey-version') || '';
 
+function isBR(){ return surveyVersion === 'br'; }
+function tr(en, pt){ return isBR() ? pt : en; }
+function tkt(n){ return isBR() ? `ingresso${n>1?'s':''}` : `ticket${n>1?'s':''}`; }
+function isImmediateWait(w){ return w===0 || w==='Immediately' || w==='Imediatamente' || w==='Sair imediatamente'; }
+
+function setTxt(selector, value){
+  const el=document.querySelector(selector);
+  if(el) el.textContent=value;
+}
+
+function applyLocaleTexts(){
+  document.documentElement.lang = isBR() ? 'pt-BR' : 'en';
+
+  setTxt('#page1 #roleAttendee', tr('Attendee', 'Participante'));
+  setTxt('#page1 #roleOrganiser', tr('Organiser', 'Organizador'));
+  setTxt('#page1 .site-header .back-btn', tr('← Change Version', '← Trocar versão'));
+
+  const p1Steps=document.querySelectorAll('#p1Breadcrumb .bc-step');
+  if(p1Steps[0]) p1Steps[0].textContent=tr('Event', 'Evento');
+  if(p1Steps[1]) p1Steps[1].textContent=tr('Tickets', 'Ingressos');
+  if(p1Steps[2]) p1Steps[2].textContent=tr('Departure', 'Saída');
+  if(p1Steps[3]) p1Steps[3].textContent=tr('Confirm', 'Confirmar');
+
+  document.querySelectorAll('#page2 .breadcrumb .bc-step').forEach((el,idx)=>{
+    const labels=[tr('Event','Evento'),tr('Tickets','Ingressos'),tr('Departure','Saída'),tr('Confirm','Confirmar')];
+    if(labels[idx]) el.textContent=labels[idx];
+  });
+  document.querySelectorAll('#page3 .breadcrumb .bc-step').forEach((el,idx)=>{
+    const labels=[tr('Event','Evento'),tr('Tickets','Ingressos'),tr('Departure','Saída'),tr('Confirm','Confirmar')];
+    if(labels[idx]) el.textContent=labels[idx];
+  });
+  document.querySelectorAll('#page4 .breadcrumb .bc-step').forEach((el,idx)=>{
+    const labels=[tr('Event','Evento'),tr('Tickets','Ingressos'),tr('Departure','Saída'),tr('Confirm','Confirmar')];
+    if(labels[idx]) el.textContent=labels[idx];
+  });
+
+  setTxt('#attendeeHome .step-label', tr('Step 1 of 3', 'Passo 1 de 3'));
+  setTxt('#attendeeHome h2', tr('Select Your Event', 'Selecione seu evento'));
+  setTxt('#attendeeHome .section-desc', tr('Choose an event below to view staggered departure options and available incentives for waiting.', 'Escolha um evento abaixo para ver opções de saída escalonada e incentivos por esperar.'));
+
+  setTxt('#organiserHome h2', tr('Organiser Dashboard', 'Painel do organizador'));
+  setTxt('#organiserHome .section-desc', tr('Manage events, configure departure pricing, and monitor live booking data.', 'Gerencie eventos, configure preços de saída e acompanhe dados de reservas em tempo real.'));
+  setTxt('#organiserHome .org-action-card:nth-child(1) .org-action-title', tr('Add Event', 'Adicionar evento'));
+  setTxt('#organiserHome .org-action-card:nth-child(1) .org-action-desc', tr('Create a new event with departure wave configuration and incentive pricing.', 'Crie um novo evento com configuração de ondas de saída e incentivos.'));
+  setTxt('#organiserHome .org-action-card:nth-child(2) .org-action-desc', tr('View live booking data, KPIs, incentive uptake rates and profit analysis.', 'Veja dados ao vivo, KPIs, adesão a incentivos e análise de lucro.'));
+  setTxt('#organiserHome .org-action-card:nth-child(3) .org-action-title', tr('Preview Attendee View', 'Visualizar modo participante'));
+  setTxt('#organiserHome .org-action-card:nth-child(3) .org-action-desc', tr('See the booking flow exactly as an attendee would experience it.', 'Veja o fluxo de reserva exatamente como um participante.'));
+  setTxt('#organiserHome .org-section-hd', tr('Configured Events', 'Eventos configurados'));
+
+  setTxt('#page2 .back-btn', tr('← Back to events', '← Voltar aos eventos'));
+  setTxt('#page2 .anav-btn', tr('Analytics', 'Análises'));
+  setTxt('#page2 .step-label', tr('Step 2 of 3', 'Passo 2 de 3'));
+  setTxt('#page2 .step-header h2', tr('How Many Tickets?', 'Quantos ingressos?'));
+  setTxt('#page2 .step-header .section-desc', tr('Select how many tickets you need. Your departure incentive scales with quantity.', 'Selecione quantos ingressos você precisa. Seu incentivo de saída escala com a quantidade.'));
+  setTxt('.qty-price-label', tr('Per ticket', 'Por ingresso'));
+  setTxt('.qty-label', tr('Number of tickets', 'Número de ingressos'));
+  setTxt('.qty-note', tr('Max 10 tickets per booking', 'Máximo de 10 ingressos por reserva'));
+  setTxt('.qty-continue-btn', tr('Continue to Departure Options →', 'Continuar para opções de saída →'));
+
+  setTxt('#page3 .back-btn', tr('← Back to ticket quantity', '← Voltar para quantidade de ingressos'));
+  setTxt('#page3 .anav-btn', tr('Analytics', 'Análises'));
+  setTxt('#tabRefund', tr('Partial Refund', 'Reembolso parcial'));
+  setTxt('#tabVoucher', tr('Food & Drink Voucher', 'Voucher de comida e bebida'));
+  const ecoInline=document.querySelector('#page3 .eco-inline');
+  if(ecoInline){
+    ecoInline.innerHTML=tr(
+      'By choosing a later departure, you help reduce exit congestion and lower transport emissions. <strong>Staggered departures can cut vehicle idle time by up to 70%</strong>, significantly reducing CO2 output at the venue.',
+      'Ao escolher uma saída mais tarde, você ajuda a reduzir congestionamento na saída e emissões do transporte. <strong>Saídas escalonadas podem reduzir o tempo de marcha lenta dos veículos em até 70%</strong>, diminuindo significativamente o CO2 no local.'
+    );
+  }
+
+  setTxt('#page4 .confirm-title', tr("You're Booked!", 'Reserva confirmada!'));
+  setTxt('#page4 .confirm-sub', tr('Your Waves by ClearWay ticket has been confirmed.', 'Seu ingresso Waves by ClearWay foi confirmado.'));
+  setTxt('#page4 .anav-btn', tr('Analytics', 'Análises'));
+  setTxt('#page4 .restart-btn', tr('← Book Another', '← Fazer nova reserva'));
+  setTxt('#page4 .view-stats-btn', tr('View Results', 'Ver resultados'));
+  const confirmBtns=document.querySelectorAll('#page4 .view-stats-btn');
+  if(confirmBtns[1]) confirmBtns[1].textContent=tr('Simulate Departure','Simular saída');
+
+  setTxt('#page5 .role-toggle .role-btn:nth-child(1)', tr('Attendee View', 'Modo participante'));
+  setTxt('#page5 .role-toggle .role-btn:nth-child(2)', tr('Organiser', 'Organizador'));
+  setTxt('#page5 .analytics-title', tr('Analytics', 'Análises'));
+  setTxt('#page5 .analytics-header .back-btn', tr('← Events', '← Eventos'));
+  setTxt('#saveFileBtn', tr('Save File', 'Salvar arquivo'));
+  setTxt('#page5 .tb-red', tr('Clear Data', 'Limpar dados'));
+  setTxt('#confirmBtn', tr('Confirm Booking →', 'Confirmar reserva →'));
+  setTxt('#summaryChoice', tr('No departure selected', 'Nenhuma saída selecionada'));
+}
+
 function applySurveyVersion(version){
   BUILTIN_EVENTS = version === 'br' ? BR_EVENTS : IE_EVENTS;
   EVENTS = getAllEvents();
+  applyLocaleTexts();
 }
 
 function startSurvey(version){
@@ -1395,7 +1485,7 @@ function buildEventGrid(){
         <div class="event-icon">${ev.icon}</div>
         <div class="event-name">${ev.name}</div>
         <div class="event-venue">${ev.venue}</div>
-        <div class="event-price">${ev.cur||'€'}${ev.price} per ticket</div>
+        <div class="event-price">${ev.cur||'€'}${ev.price} ${tr('per ticket','por ingresso')}</div>
       `;
       c.onclick=()=>selectEvent(ev);
       grid.appendChild(c);
@@ -1410,12 +1500,12 @@ function buildEventGrid(){
       const c=document.createElement('div');
       c.className='event-card'; c.id='cardorg-'+ev.id;
       c.innerHTML=`
-        ${isCustom?`<button class="event-card-del" title="Remove event" onclick="removeCustomEvent('${ev.id}',event)">✕</button>`:''}
+        ${isCustom?`<button class="event-card-del" title="${tr('Remove event','Remover evento')}" onclick="removeCustomEvent('${ev.id}',event)">✕</button>`:''}
         <div class="event-icon">${ev.icon}</div>
         <div class="event-name">${ev.name}</div>
         <div class="event-venue">${ev.venue}</div>
-        <div class="event-price">${ev.cur||'€'}${ev.price} per ticket</div>
-        ${isCustom?'<div class="event-custom-tag">Custom</div>':''}
+        <div class="event-price">${ev.cur||'€'}${ev.price} ${tr('per ticket','por ingresso')}</div>
+        ${isCustom?`<div class="event-custom-tag">${tr('Custom','Personalizado')}</div>`:''}
       `;
       c.onclick=(e)=>{ if(e.target.classList.contains('event-card-del')) return; };
       gridOrg.appendChild(c);
@@ -1425,7 +1515,7 @@ function buildEventGrid(){
 
 async function removeCustomEvent(id, e){
   e.stopPropagation();
-  if(!confirm('Remove this custom event? This cannot be undone.')) return;
+  if(!confirm(tr('Remove this custom event? This cannot be undone.','Remover este evento personalizado? Esta ação não pode ser desfeita.'))) return;
   const evs=loadCustomEvs().filter(ev=>ev.id!==id);
   await saveCustomEvs(evs);
   buildEventGrid();
@@ -1469,9 +1559,12 @@ function populateDeparturePage(){
   g('recapIcon').textContent    =selEv.icon;
   g('recapName').textContent    =selEv.name;
   g('recapSub').textContent     =selEv.venue;
-  g('recapQtyLabel').textContent=`${qty} ticket${qty>1?'s':''}`;
+  g('recapQtyLabel').textContent=`${qty} ${tkt(qty)}`;
   g('recapTotal').textContent   =sym+(selEv.price*qty).toFixed(2);
-  g('step3Note').textContent    =`Choose how long to stay after the event. Your rewards increase with a longer time spent. Subtotal: ${sym}${(selEv.price*qty).toFixed(2)}.`;
+  g('step3Note').textContent    =tr(
+    `Choose how long to stay after the event. Your rewards increase with a longer time spent. Subtotal: ${sym}${(selEv.price*qty).toFixed(2)}.`,
+    `Escolha quanto tempo ficar após o evento. Suas recompensas aumentam com mais tempo de espera. Subtotal: ${sym}${(selEv.price*qty).toFixed(2)}.`
+  );
   activeTab='refund';
   g('tabRefund').classList.add('active'); g('tabVoucher').classList.remove('active');
   renderOptions(); updateSummaryBar();
@@ -1491,11 +1584,12 @@ function renderOptions(){
     const sv=sval(opt,qty);
     const tClass=activeTab==='refund'?'refund-opt':'voucher-opt';
     const bCls=isImm?'immediate-badge':activeTab==='refund'?'refund-badge':'voucher-badge';
-    const bTxt=isImm?'No Reward':activeTab==='refund'?`${sym}${sv.toFixed(2)} refund${qty>1?' ('+qty+'×'+sym+opt.value+')':''}`:
-                                                        `${sym}${sv.toFixed(2)} voucher${qty>1?' ('+qty+'×'+sym+opt.value+')':''}`;
-    const dTxt=isImm?'No waiting - exit as soon as the event ends':
-               activeTab==='refund'?'Partial refund off your total ticket price':
-               'Food & drink voucher redeemable immediately after the event';
+    const bTxt=isImm?tr('No Reward','Sem recompensa'):activeTab==='refund'?
+      `${sym}${sv.toFixed(2)} ${tr('refund','reembolso')}${qty>1?' ('+qty+'×'+sym+opt.value+')':''}`:
+      `${sym}${sv.toFixed(2)} ${tr('voucher','voucher')}${qty>1?' ('+qty+'×'+sym+opt.value+')':''}`;
+    const dTxt=isImm?tr('No waiting - exit as soon as the event ends','Sem espera - saia assim que o evento terminar'):
+      activeTab==='refund'?tr('Partial refund off your total ticket price','Reembolso parcial no valor total dos ingressos'):
+      tr('Food & drink voucher redeemable immediately after the event','Voucher de comida e bebida resgatável após o evento');
     const row=document.createElement('div');
     row.className=`option-row${isImm?'':' '+tClass}`;
     row.innerHTML=`<div class="radio-circle"><div class="radio-dot"></div></div><div class="option-text"><div class="option-time">${opt.time}</div><div class="option-detail">${dTxt}</div></div><span class="option-badge ${bCls}">${bTxt}</span>`;
@@ -1515,18 +1609,18 @@ function updateSummaryBar(){
   if(!selEv) return;
   const sym=selEv.cur||'€';
   const base=selEv.price*qty;
-  g('summaryEvent').textContent=`${selEv.name} · ${qty} ticket${qty>1?'s':''}`;
-  if(!selOpt){ g('summaryChoice').textContent='No departure selected'; g('priceFinal').textContent=sym+base.toFixed(2); g('priceOriginal').textContent=''; g('priceSavings').textContent=''; return; }
+  g('summaryEvent').textContent=`${selEv.name} · ${qty} ${tkt(qty)}`;
+  if(!selOpt){ g('summaryChoice').textContent=tr('No departure selected','Nenhuma saída selecionada'); g('priceFinal').textContent=sym+base.toFixed(2); g('priceOriginal').textContent=''; g('priceSavings').textContent=''; return; }
   const sv=sval(selOpt,qty),isImm=selOpt.wait===0,isRef=activeTab==='refund';
   if(isImm){
-    g('summaryChoice').textContent='Leaving immediately after the event';
+    g('summaryChoice').textContent=tr('Leaving immediately after the event','Saindo imediatamente após o evento');
     g('priceOriginal').textContent=''; g('priceFinal').textContent=sym+base.toFixed(2); g('priceSavings').textContent='';
   } else if(isRef){
-    g('summaryChoice').textContent=`Leaving ${selOpt.wait} after · -${sym}${sv.toFixed(2)} refund`;
-    g('priceOriginal').textContent=sym+base.toFixed(2); g('priceFinal').textContent=sym+(base-sv).toFixed(2); g('priceSavings').textContent=`You save ${sym}${sv.toFixed(2)}`;
+    g('summaryChoice').textContent=tr(`Leaving ${selOpt.wait} after · -${sym}${sv.toFixed(2)} refund`,`Saindo ${selOpt.wait} depois · -${sym}${sv.toFixed(2)} de reembolso`);
+    g('priceOriginal').textContent=sym+base.toFixed(2); g('priceFinal').textContent=sym+(base-sv).toFixed(2); g('priceSavings').textContent=tr(`You save ${sym}${sv.toFixed(2)}`,`Você economiza ${sym}${sv.toFixed(2)}`);
   } else {
-    g('summaryChoice').textContent=`Leaving ${selOpt.wait} after · ${sym}${sv.toFixed(2)} voucher`;
-    g('priceOriginal').textContent=''; g('priceFinal').textContent=sym+base.toFixed(2); g('priceSavings').textContent=`+ ${sym}${sv.toFixed(2)} food/drink voucher`;
+    g('summaryChoice').textContent=tr(`Leaving ${selOpt.wait} after · ${sym}${sv.toFixed(2)} voucher`,`Saindo ${selOpt.wait} depois · voucher de ${sym}${sv.toFixed(2)}`);
+    g('priceOriginal').textContent=''; g('priceFinal').textContent=sym+base.toFixed(2); g('priceSavings').textContent=tr(`+ ${sym}${sv.toFixed(2)} food/drink voucher`,`+ ${sym}${sv.toFixed(2)} em voucher de comida/bebida`);
   }
 }
 
@@ -1605,12 +1699,12 @@ async function doConfirm(){
   const isImm=opt.wait===0,isRef=activeTab==='refund';
   const sv=sval(opt,qty);
   let html=`<strong>${ev.name}</strong><br>${ev.sub} · ${ev.venue}<br><br>`;
-  html+=`<strong>${qty} ticket${qty>1?'s':''}</strong> @ ${sym}${ev.price.toFixed(2)} each<br>`;
-  if(isImm){ html+=`Departure: Immediately<br>Total paid: <strong>${sym}${base.toFixed(2)}</strong>`; }
-  else if(isRef){ html+=`Departure: ${opt.wait} after · Refund: −${sym}${sv.toFixed(2)}<br>Final price: <strong>${sym}${(base-sv).toFixed(2)}</strong>`; }
-  else{ html+=`Departure: ${opt.wait} after<br>Total paid: <strong>${sym}${base.toFixed(2)}</strong><br>Voucher: <strong>${sym}${sv.toFixed(2)}</strong> (redeemable after event)`; }
+  html+=`<strong>${qty} ${tkt(qty)}</strong> @ ${sym}${ev.price.toFixed(2)} ${tr('each','cada')}<br>`;
+  if(isImm){ html+=`${tr('Departure','Saída')}: ${tr('Immediately','Imediatamente')}<br>${tr('Total paid','Total pago')}: <strong>${sym}${base.toFixed(2)}</strong>`; }
+  else if(isRef){ html+=`${tr('Departure','Saída')}: ${opt.wait} ${tr('after','depois')} · ${tr('Refund','Reembolso')}: −${sym}${sv.toFixed(2)}<br>${tr('Final price','Preço final')}: <strong>${sym}${(base-sv).toFixed(2)}</strong>`; }
+  else{ html+=`${tr('Departure','Saída')}: ${opt.wait} ${tr('after','depois')}<br>${tr('Total paid','Total pago')}: <strong>${sym}${base.toFixed(2)}</strong><br>${tr('Voucher','Voucher')}: <strong>${sym}${sv.toFixed(2)}</strong> ${tr('(redeemable after event)','(resgatável após o evento)')}`; }
   g('confirmDetails').innerHTML=html;
-  setConfirmSaveStatus('Saving your submission…','pending');
+  setConfirmSaveStatus(tr('Saving your submission…','Salvando seu envio…'),'pending');
   const ref='CW-'+Math.random().toString(36).substring(2,8).toUpperCase();
   const submission = {
     id:ref,
@@ -1621,7 +1715,7 @@ async function doConfirm(){
     venue:ev.venue,
     eventSubtitle:ev.sub,
     incentiveType:isImm?'immediate':isRef?'refund':'voucher',
-    wait:isImm?'Immediately':opt.wait,
+    wait:isImm?tr('Immediately','Imediatamente'):opt.wait,
     baseValue:opt.value,
     scaledValue:sv,
     ticketQty:qty,
@@ -1650,7 +1744,7 @@ function restart(){
 /* ════════════════════════════════════════════════════════════════
    ANALYTICS
 ════════════════════════════════════════════════════════════════ */
-function toMins(w){ if(!w||w==='Immediately'||w===0) return 0; const s=String(w),n=parseFloat(s); return isNaN(n)?0:s.includes('hr')?Math.round(n*60):n; }
+function toMins(w){ if(!w||isImmediateWait(w)) return 0; const s=String(w),n=parseFloat(s); return isNaN(n)?0:s.includes('hr')?Math.round(n*60):n; }
 function getC(evId){
   const ev=getAllEvents().find(e=>e.id===evId); if(!ev) return 0;
   const first=ev.options.refund.find(o=>o.value>0); return first?first.value:0;
@@ -1670,7 +1764,7 @@ function profitPct(r){
 }
 function priceToPersonPerTicket(r){ const c=getC(r.eventId),qty=r.ticketQty||1; return gsv(r)-2*c*qty; }
 function optionSlotIndex(r){
-  if(r.wait==='Immediately'||r.wait===0) return 0;
+  if(isImmediateWait(r.wait)) return 0;
   const ev=getAllEvents().find(e=>e.id===r.eventId); if(!ev) return 0;
   const idx=ev.options.refund.findIndex(o=>o.wait===r.wait);
   return idx!==-1?idx:0;
@@ -1735,16 +1829,16 @@ function renderAnalytics(){
   applyTheme(curTheme);
 
   const wMap={};
-  R.forEach(r=>{ if(r.wait&&r.wait!=='Immediately'&&r.wait!==0) wMap[r.wait]=(wMap[r.wait]||0)+1; });
+  R.forEach(r=>{ if(r.wait&&!isImmediateWait(r.wait)) wMap[r.wait]=(wMap[r.wait]||0)+1; });
   const ORDER=['10 min','15 min','20 min','30 min','40 min','45 min','1 hr','1.5 hrs','2 hrs','3 hrs'];
   const timEl=g('timingBars'); timEl.innerHTML='';
   const mxW=Math.max(1,...Object.values(wMap));
   const timed=ORDER.filter(k=>wMap[k]);
-  if(!timed.length){ timEl.innerHTML='<div style="font-size:.78rem;color:var(--muted)">No data yet.</div>'; }
+  if(!timed.length){ timEl.innerHTML=`<div style="font-size:.78rem;color:var(--muted)">${tr('No data yet.','Sem dados ainda.')}</div>`; }
   else timed.forEach(k=>{ const n=wMap[k],row=document.createElement('div'); row.className='bar-row'; row.innerHTML=`<div class="bar-lbl">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mxW*100)}%"></div></div><div class="bar-val">${n}</div>`; timEl.appendChild(row); });
 
   const cgEl=g('costGrid'); cgEl.innerHTML='';
-  if(!total){ cgEl.innerHTML='<div style="font-size:.78rem;color:var(--muted)">No data yet.</div>'; }
+  if(!total){ cgEl.innerHTML=`<div style="font-size:.78rem;color:var(--muted)">${tr('No data yet.','Sem dados ainda.')}</div>`; }
   else {
     getAllEvents().forEach(ev=>{
       const evR=R.filter(r=>r.eventId===ev.id); if(!evR.length) return;
@@ -1753,14 +1847,14 @@ function renderAnalytics(){
       const aptp=(evR.reduce((s,r)=>s+priceToPersonPerTicket(r),0)/evR.length).toFixed(2);
       const evSym=ev.cur||'€';
       const b=document.createElement('div'); b.className='cost-kpi';
-      b.innerHTML=`<div class="cost-kpi-label">${ev.icon} ${ev.name}</div><div class="cost-kpi-val" style="color:var(--refund)">${ap}</div><div class="cost-kpi-sub">${evR.length} booking${evR.length!==1?'s':''} · avg benefit ${evSym}${aptp}</div>`;
+      b.innerHTML=`<div class="cost-kpi-label">${ev.icon} ${ev.name}</div><div class="cost-kpi-val" style="color:var(--refund)">${ap}</div><div class="cost-kpi-sub">${evR.length} ${tr('booking','reserva')}${evR.length!==1?tr('s','s'):''} · ${tr('avg benefit','benefício médio')} ${evSym}${aptp}</div>`;
       cgEl.appendChild(b);
     });
   }
 
   const bgEl=g('breakdownGrid'); bgEl.innerHTML='';
   if(!total){
-    bgEl.innerHTML=`<div class="no-data"><div class="no-data-icon"></div><div class="no-data-title">No responses yet</div><div class="no-data-sub">Complete a booking to see data here.</div></div>`;
+    bgEl.innerHTML=`<div class="no-data"><div class="no-data-icon"></div><div class="no-data-title">${tr('No responses yet','Ainda não há respostas')}</div><div class="no-data-sub">${tr('Complete a booking to see data here.','Conclua uma reserva para ver dados aqui.')}</div></div>`;
   } else {
     getAllEvents().forEach(ev=>{
       const evR=R.filter(r=>r.eventId===ev.id); if(!evR.length) return;
@@ -1774,7 +1868,7 @@ function renderAnalytics(){
       const evAvgPTP=(evR.reduce((s,r)=>s+priceToPersonPerTicket(r),0)/t).toFixed(2);
       const evAvgRef=eRef.length?(eRef.reduce((s,r)=>s+gsv(r),0)/eRef.length).toFixed(2):null;
       const evAvgVou=eVou.length?(eVou.reduce((s,r)=>s+gsv(r),0)/eVou.length).toFixed(2):null;
-      const stayers=evR.filter(r=>r.wait!=='Immediately'&&r.wait!==0);
+      const stayers=evR.filter(r=>!isImmediateWait(r.wait));
       const evAvgMin=stayers.length?Math.round(stayers.reduce((s,r)=>s+toMins(r.wait),0)/stayers.length):0;
       const slots=buildSlots(ev,evR);
       const card=document.createElement('div'); card.className='ev-stat-card';
@@ -1783,43 +1877,44 @@ function renderAnalytics(){
           <div class="ev-stat-icon">${ev.icon}</div>
           <div class="ev-stat-name">${ev.name}</div>
           <div class="ev-stat-meta">
-            <span class="ev-badge ref">${eRef.length} refund</span>
-            <span class="ev-badge vou">${eVou.length} voucher</span>
+            <span class="ev-badge ref">${eRef.length} ${tr('refund','reembolso')}</span>
+            <span class="ev-badge vou">${eVou.length} ${tr('voucher','voucher')}</span>
             <span class="ev-badge imm">${eImm.length} imm.</span>
             <span class="ev-expand">▼</span>
           </div>
         </div>
         <div class="ev-stat-body"><div class="ev-stat-inner">
           <div class="ev-kpi-row">
-            <div class="ev-kpi"><div class="ev-kpi-label">Responses</div><div class="ev-kpi-val">${t}</div></div>
-            <div class="ev-kpi"><div class="ev-kpi-label">Incentive Rate</div><div class="ev-kpi-val t">${Math.round((eRef.length+eVou.length)/t*100)}%</div></div>
-            <div class="ev-kpi"><div class="ev-kpi-label">Avg Option</div><div class="ev-kpi-val o">${evAvgOpt}</div></div>
-            <div class="ev-kpi"><div class="ev-kpi-label">Avg Stay</div><div class="ev-kpi-val t">${evAvgMin} min</div></div>
-            ${evAvgRef!==null?`<div class="ev-kpi"><div class="ev-kpi-label">Avg Refund</div><div class="ev-kpi-val o">${evSym}${evAvgRef}</div></div>`:''}
-            ${evAvgVou!==null?`<div class="ev-kpi"><div class="ev-kpi-label">Avg Voucher</div><div class="ev-kpi-val o">${evSym}${evAvgVou}</div></div>`:''}
-            <div class="ev-kpi"><div class="ev-kpi-label">Profit %</div><div class="ev-kpi-val t">${evProfit}</div></div>
-            <div class="ev-kpi"><div class="ev-kpi-label">Benefit / Person</div><div class="ev-kpi-val r">${evSym}${evAvgPTP}</div></div>
+            <div class="ev-kpi"><div class="ev-kpi-label">${tr('Responses','Respostas')}</div><div class="ev-kpi-val">${t}</div></div>
+            <div class="ev-kpi"><div class="ev-kpi-label">${tr('Incentive Rate','Taxa de incentivo')}</div><div class="ev-kpi-val t">${Math.round((eRef.length+eVou.length)/t*100)}%</div></div>
+            <div class="ev-kpi"><div class="ev-kpi-label">${tr('Avg Option','Opção média')}</div><div class="ev-kpi-val o">${evAvgOpt}</div></div>
+            <div class="ev-kpi"><div class="ev-kpi-label">${tr('Avg Stay','Permanência média')}</div><div class="ev-kpi-val t">${evAvgMin} min</div></div>
+            ${evAvgRef!==null?`<div class="ev-kpi"><div class="ev-kpi-label">${tr('Avg Refund','Reembolso médio')}</div><div class="ev-kpi-val o">${evSym}${evAvgRef}</div></div>`:''}
+            ${evAvgVou!==null?`<div class="ev-kpi"><div class="ev-kpi-label">${tr('Avg Voucher','Voucher médio')}</div><div class="ev-kpi-val o">${evSym}${evAvgVou}</div></div>`:''}
+            <div class="ev-kpi"><div class="ev-kpi-label">${tr('Profit %','Lucro %')}</div><div class="ev-kpi-val t">${evProfit}</div></div>
+            <div class="ev-kpi"><div class="ev-kpi-label">${tr('Benefit / Person','Benefício / Pessoa')}</div><div class="ev-kpi-val r">${evSym}${evAvgPTP}</div></div>
           </div>
-          <div class="sub-section-lbl">Choice breakdown by departure slot</div>
+          <div class="sub-section-lbl">${tr('Choice breakdown by departure slot','Distribuição por faixa de saída')}</div>
           <div class="slot-rows">${slots}</div>
         </div></div>`;
       bgEl.appendChild(card);
     });
-    if(!bgEl.children.length) bgEl.innerHTML=`<div class="no-data"><div class="no-data-icon"></div><div class="no-data-title">No responses yet</div></div>`;
+    if(!bgEl.children.length) bgEl.innerHTML=`<div class="no-data"><div class="no-data-icon"></div><div class="no-data-title">${tr('No responses yet','Ainda não há respostas')}</div></div>`;
   }
 
   const feedEl=g('feedContainer'); feedEl.innerHTML='';
-  if(!R.length){ feedEl.innerHTML='<div class="feed-empty">No responses yet - complete a booking to see data here.</div>'; }
+  if(!R.length){ feedEl.innerHTML=`<div class="feed-empty">${tr('No responses yet - complete a booking to see data here.','Ainda não há respostas - conclua uma reserva para ver os dados aqui.')}</div>`; }
   else {
     const list=document.createElement('div'); list.className='feed-list';
     [...R].reverse().slice(0,30).forEach(r=>{
       const bc=r.incentiveType==='refund'?'refund':r.incentiveType==='voucher'?'voucher':'immediate';
       const sv=gsv(r); const evSym=r.cur||'€';
-      const bt=r.incentiveType==='refund'?`−${evSym}${sv.toFixed(2)} refund`:r.incentiveType==='voucher'?`${evSym}${sv.toFixed(2)} voucher`:'No incentive';
-      const dt=new Date(r.ts),ts=dt.toLocaleTimeString('en-IE',{hour:'2-digit',minute:'2-digit'})+' · '+dt.toLocaleDateString('en-IE',{day:'numeric',month:'short'});
+      const bt=r.incentiveType==='refund'?`−${evSym}${sv.toFixed(2)} ${tr('refund','reembolso')}`:r.incentiveType==='voucher'?`${evSym}${sv.toFixed(2)} voucher`:tr('No incentive','Sem incentivo');
+      const loc=isBR()?'pt-BR':'en-IE';
+      const dt=new Date(r.ts),ts=dt.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'})+' · '+dt.toLocaleDateString(loc,{day:'numeric',month:'short'});
       const q=r.ticketQty||1;
       const item=document.createElement('div'); item.className='feed-item';
-      item.innerHTML=`<div class="fi-icon">${r.eventIcon}</div><div class="fi-info"><div class="fi-event">${r.eventName} · ${q} ticket${q>1?'s':''}</div><div class="fi-detail">${r.wait==='Immediately'?'Leaving immediately':'Staying '+r.wait+' after'} · ${r.id}</div></div><span class="fi-badge ${bc}">${bt}</span><div class="fi-time">${ts}</div>`;
+      item.innerHTML=`<div class="fi-icon">${r.eventIcon}</div><div class="fi-info"><div class="fi-event">${r.eventName} · ${q} ${tkt(q)}</div><div class="fi-detail">${isImmediateWait(r.wait)?tr('Leaving immediately','Saindo imediatamente'):tr('Staying ','Ficando ')+r.wait+tr(' after',' depois')} · ${r.id}</div></div><span class="fi-badge ${bc}">${bt}</span><div class="fi-time">${ts}</div>`;
       list.appendChild(item);
     });
     feedEl.appendChild(list);
@@ -1831,12 +1926,12 @@ function renderAnalytics(){
 
 function buildSlots(ev,evR){
   const wc={};
-  evR.forEach(r=>{ const w=r.wait==='Immediately'||r.wait===0?'Immediately':r.wait; const key=w==='Immediately'?'imm':`${r.incentiveType}:${w}`; wc[key]=(wc[key]||0)+1; });
+  evR.forEach(r=>{ const w=isImmediateWait(r.wait)?'Immediately':r.wait; const key=w==='Immediately'?'imm':`${r.incentiveType}:${w}`; wc[key]=(wc[key]||0)+1; });
   const maxN=Math.max(1,...Object.values(wc));
   const rows=[];
-  rows.push(slot('No wait (Immediately)','imm',wc['imm']||0,maxN,'gray'));
-  ev.options.refund.slice(1).forEach((opt,i)=>{ const n=wc[`refund:${opt.wait}`]||0; rows.push(slot(`Refund slot ${i+1}: ${opt.time}`,`refund:${opt.wait}`,n,maxN,'teal')); });
-  ev.options.voucher.slice(1).forEach((opt,i)=>{ const n=wc[`voucher:${opt.wait}`]||0; rows.push(slot(`Voucher slot ${i+1}: ${opt.time}`,`voucher:${opt.wait}`,n,maxN,'orange')); });
+  rows.push(slot(tr('No wait (Immediately)','Sem espera (Imediatamente)'),'imm',wc['imm']||0,maxN,'gray'));
+  ev.options.refund.slice(1).forEach((opt,i)=>{ const n=wc[`refund:${opt.wait}`]||0; rows.push(slot(tr(`Refund slot ${i+1}: ${opt.time}`,`Faixa de reembolso ${i+1}: ${opt.time}`),`refund:${opt.wait}`,n,maxN,'teal')); });
+  ev.options.voucher.slice(1).forEach((opt,i)=>{ const n=wc[`voucher:${opt.wait}`]||0; rows.push(slot(tr(`Voucher slot ${i+1}: ${opt.time}`,`Faixa de voucher ${i+1}: ${opt.time}`),`voucher:${opt.wait}`,n,maxN,'orange')); });
   return rows.join('');
 }
 function slot(label,wait,n,maxN,color){
@@ -1863,11 +1958,11 @@ function triggerSave(){
   const a=g('_autoDownloadLink');
   if(!a.href||a.href===window.location.href) prepareBlob();
   a.click();
-  const b=g('saveFileBtn'); b.textContent='Saved';
-  setTimeout(()=>{ b.textContent='Save File'; },2200);
+  const b=g('saveFileBtn'); b.textContent=tr('Saved','Salvo');
+  setTimeout(()=>{ b.textContent=tr('Save File','Salvar arquivo'); },2200);
 }
 async function clearAllData(){
-  if(!confirm('Clear all survey responses? This cannot be undone.')) return;
+  if(!confirm(tr('Clear all survey responses? This cannot be undone.','Limpar todas as respostas do survey? Esta ação não pode ser desfeita.'))) return;
   _responses=[];
   await stoSet(STO_KEY,[]);
   renderAnalytics();
